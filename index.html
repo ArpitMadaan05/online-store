@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Store</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #97e7f2;
+        }
+
+        header {
+            background-color: #00695c;
+            color: #fff;
+            text-align: center;
+            padding: 15px 0;
+        }
+
+        h1 {
+            margin: 0;
+        }
+
+        main {
+            display: flex;
+            justify-content: space-around;
+            padding: 20px;
+        }
+
+        .products, .cart {
+            width: 45%;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        
+        .product-item {
+            border: 2px solid #80cbc4;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #e0f2f1;
+        }
+
+        .product-item img {
+            max-width: 100px;
+            max-height: 100px;
+            margin-right: 15px;
+            border-radius: 5px;
+        }
+
+        .product-item h3 {
+            margin: 0;
+            color: #004d40;
+        }
+
+        .product-item p {
+            margin: 5px 0;
+        }
+
+        .product-item button {
+            padding: 7px 15px;
+            background-color: #00796b;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .product-item button:hover {
+            background-color: #004d40;
+        }
+
+        
+        .cart ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .cart li {
+            border-bottom: 1px solid #80cbc4;
+            padding: 10px 0;
+            color: #00796b;
+        }
+
+        .total {
+            margin-top: 20px;
+            font-weight: bold;
+            color: #004d40;
+        }
+
+        #checkout-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #00796b;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background-color 0.3s ease;
+        }
+
+        #checkout-btn:hover {
+            background-color: #004d40;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Online Store</h1>
+    </header>
+
+    <main>
+        <section class="products">
+            <h2>Products</h2>
+            <div id="product-list"></div>
+        </section>
+
+        <section class="cart">
+            <h2>Shopping Cart</h2>
+            <ul id="cart-list"></ul>
+            <div class="total">
+                <span>Total: ₹<span id="total-price">0.00</span></span>
+            </div>
+            <button id="checkout-btn">Checkout</button>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Online Store. All rights reserved.</p>
+    </footer>
+
+    <script>
+        
+        const products = [
+            { id: 1, name: "Headphones", price: 2000, description: "High-quality sound", image: "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBwgHBgkIBwgKCgkLDRYPDQwMDRsUFRAWIB0iIiAdHx8kKDQsJCYxJx8fLT0tMTU3Ojo6Iys/RD84QzQ5OjcBCgoKDQwNGg8PGjclHyU3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3N//AABEIAJQAxwMBEQACEQEDEQH/xAAcAAACAgMBAQAAAAAAAAAAAAABAgYHAAQFAwj/xAA/EAABAwMCAwQHBAYLAAAAAAABAAIDBAURBiESMUEHUWFxExQiMoGRsSNSocEVM0JywvAWJCU0U2JjkrLR4f/EABsBAAIDAQEBAAAAAAAAAAAAAAECAAMEBQYH/8QANREAAgIBAwIEAwUHBQAAAAAAAAECEQMEITEFEhMyQVEicaEzYZGx4QYUI4HB0fAVJEJScv/aAAwDAQACEQMRAD8AsYL5qkdocKxIAzU6QBk6QAgYTpCsYJkAKYgUyAYmIFQBihDFAgQohilEAlogCgECRhFSNBQpShFKrYRSkaGEcqpJDHmVnkhkIVWMK5MhkbgW9GcYJ0BjBOhRgnRBk6FYQmAEIogQnQAogMUIYoQxNZDECAQYTClZBTyShAlaIApRkKUjCKkYRCq2MhCFXJBQhVMkMhCqGOhCoFG4F0EUMYKxCsYJkgDBWIjGToUKYAQigBCZECmAZhQgcIkAQgQxQIPp18FAGjUXi20x4Z6+mY7uMoymjinPyxb+RO5Gv/SOyk4/SdN/vTfuuf8A6P8AAnfH3NmmuVDV/wB2rKeU9zJASs84Sjs0MmjYPcqmMgFKwipGEUhVsZCOSMKEKpnwMjzKzyVDIUoDI2wuiigYKxCjBMgDBOgMZOgBCcAUQBCYgUQGZRIFEgsr2RRukkc1jGjLnOOAAokRkI1F2hUlECy3+jP+vPkNP7jPed+A8V0sHTJy3yvtX1/z6lEs1bIrm762qq932tRPUD7rjws+DBgfPK6uPTafF5YlLlORyhqKrbtFGWDuaMBX+LEWmejNU3FhH2YOO8IeLEnazaj1XHIf67Qtd3uDRlN4kZKmSmiSWTVUgIFrujxjnTVJ42/juPgVjzdP02ZcU/uHjlnEm1o1bTVTm01wj9TqnbNJOY3nuDuh8DhcLV9My4F3L4o/X8DVjzxnt6kiXKZoFKraGFckYTzKqkrGR5uWaQ6FKUKNtdFFIysQrGCZCjBWIDGToAQmQApgBCYgUQBCJDyq6mGkp5KioeGRMGXOP87+SaMXJqK5I3Ssq3VOqq261r6K3ZYIj7RIy2DxPR0nhyb4ldmGLFoY9095/l/nuZl3ZnS4IRNbWSVLzmSZ5O73Euc4+JS/vU2rky1YUtkblJpuuqCPVra4/wCZ6onrccfNMdYX7HWi0FfpRkxwRDyCofUcK4TYfBkM/s9vzRlr4HHuICn+p4vWLJ4D9zmVmlL1SgmotokaOboirsevwS2Uq+YssMzgT0GH4j4opm82OBDgt2PO1vyimWM3rZf5KUilubPTQciSNwt8MikiiUaLH01qX1ERQVc5mtkhDYqhxy6Dua49W+PMeS4vUemJrxsGz9V/b+xow5v+Mid7EZHLzXmWbkKVWxjzcqp8bDIQrPJDIQpB0bQXRRnHCsQAtTIA4ViAMEyFYU6AHKJAhMmAKKIYiArnWt7nuNyitVtlDSX8DXjcM3w6X4btb4hx6bdnTLHo8H7zlW74X3fqZ2nln2Lg1rLpiKrkdBSZZbo3e/1mPU/PK5GfWTyS7n5n9P1N0MaiqJxRaft1KxoipoxjrhZvDlLecrI8lcHSZDGwYa0DyCeOOK9BHJsfA8EzS9gbikDyS0iCuY0jBGQklFMa2cC/6Utt3iPpYQyUbtkZsQVMeTLgd43/ACC6mqkiqNT6XqrVKY6ppfEdo6gDY/vLtaTWxycbP2M+XFRy7Lc5LXUOpawcdLJ7Lmu5DK7WLKpIySjRa2h7xkfoeomMhjj9JSSOOS+L7pPUt5eWF5zrOiWGfiw8svo/15Nmmy9y7XySwrgM1oQqpjHm5Z5DIQpB0bYXQRQMCrEKME6AME6AMFYgMKZChRRAhOgBCKIcnVV0/RVknmY4NmfiOIno523F8Bk/BadLi8bNGH4/IryPtjZA7DZ318+S1zfS8JkJ95sY91vy+pS9R1viZfh4WyLtPi7IWyyqKljpYGRsaGtAxgLHix9qt8hnK2bCuEMQIAoMgClYQJWEUpWwo1LjQwV9M+CpYHseMEFVu0+6OzGT9GU1rDTD7ZUOjwXQOP2T/wCErt6HW+It+VyUZsRzbBd56KaCM59YpJRJTn7wHvM+LchdnJCOqwSxP1MavHNSRelNUR1VNFUQkOjlYHtI6gjIXgsicZOMuUdaO6tDFUsahHKiVDoQpAo2gt6ZSOE4AqxCjhOgBCdAGTACEyAEJrIEFFMBX/aFO6s1DZrQ0+xvNLju3A/AO+a26efhYMuX1ql/MRx7pxiSqyUQp6cEtHG/2nLk4Y38TNWSXodYctvgtS4KDPNFEMQZAJWEUoMhiVhFJSsYU7pCHMvlshulDJTzNyCNj1B71X3yxz74lipqmU1fLJJbZKmWZvt05BG3vYOfovRaPWKbj2+pizYqiyztCVIlsDYQ4H1aV8QA6NzxNHwa4D4LkdaxrHrZezp/jz9bL9K+7EjvlcaRpEcqZDITqlGNoLcikcKxAGBToUZqdAGToAU4oUSBRTAYTgEoshW1bUNqe0+EOII4PQt37mk/VaEm9BL53+SCmllR66p13JRV7qCyujaIPZmqHtD8v+60eHU/BXaXR/CnL19P6lU8m5ELrcK+53Gd9TVvmeGte0gloaCByHILqYNNHw67SmcqexOOyi91FxoayirJXyvpXtLHPOTwnouZrsKxZFXDLoS7kTwlYmywBQZAZS2ECWwoQpGEUpGECV7hIhry3+sUbnxty70bg7JwMYzur9BLtzqIMu8Gc/sxlLrbID+0yB/xMYz9Ft/aRVqIf+f6lOh8jX3k2K869jaIVS9xkIUoxtArbFlAwKdMDHViAEFOmKxgcp0AZOQKIoUyIJK7DCfBLOVKwxVso7UFbVU2oKi4UmPSUzHytJHwP4Fd7p2njl03bIzaifbPYi1h4qy6Wuke44mq2ROJ68bwCT8114QXfZllLYnlVp9tk1c6gDzJHUUTKhuRuMl7SPmwqxxSewtm52UO9X1Td6fPsugafk5cXq8Uoxf3mrTu7LVyFxGzSYh6hAUrDQpSNhFKQIClYQJQke1pKYbNUOGN2EHywn00VLUokvs2RvsyYY6WpyTgOjjG/wB2MZ+q6H7Ry/jwXskVaFfA37k6zsvOSdmsQqscUqENkFaUyljtKtiAcFWJgCmFoYFMgBBToAwKcgQihTWrn8FO8+BVWWXwlmNblRVkbZam5Rv5yUlTGD4lmR9F6vo7/hUYNX5ivrNUer1lvqOsNTG/5OB/JdJbMzPgsvV96jqNWWaqiO/qj4nEeEjiP+SeapioTQkwj7RZGDlNSv8AwIXI6urwp+zRq03mot/Od15yzZRiAaAoEUlI2QgmsNestcr6S1tjnnYcSSO3a09w710dJ06WZXPgqnlURtDa5F/ldQV0bYq1rC9pZ7sgHPyP/qr1/T3pl4kfKHFl73RNMrlNmgiXaPVtp7BJxnHpCG+a29KxPLrIoqzy7cTNHs/idFao+MYfI50jvNxJ/PHwSdbyrLqZSXBZpY9uJImGVxZMvoUpRhUSGyCr0VDAqxAHBViewBk6YBgnQrMBRsAwToAyayHPuzsUj8dypy77FkEUxq6odR1LpGEgOP1BH5r03SJ1GjDq0QKEkNwOnJdizIdU1cj6unmLycbDfl3/AFRbtgrYk2ia7PaBbX5/WB7D8Wk/kuf1OPdppP2pl+n+0Re7TtheVs3jIsgpPcg2QhWrdSyS1D7LY5M1B2qahp2hHVoPf9F1en9PllffPgz5cyjsiq9QPp6dwpaQmSQHBd1JXpFFRVIwttnLttxqrXXRzUUpinafZkbsfLy8Fnz4Y5IVJbFkJuL2PoTTdxddtP2+4SbPqIGvfjlxcj+K8VqcfhZZQ9mdSD7oplca+urb5qSK0UruKnojx1LwduL7v5Ls9OwvS6aWefMtl8jNml4k1BcImOmoTHSN2xsvPa2VzZ0IKkd5YmMKUoRSUSGw3krYlY4ViAEJ0AcFWIAwKdACOaaxQ5TWAOUyIaF23pHjwVM3TLIFOa0gdUUmW7vjdwn5/wDS7/TZ9k9+GZNRG0QWGmeYpXY9x2F3JZEpJGPttBiccDvaeSssU7miZHf03tDhy9YA+YIWPqD/ANrP5FmH7RH0a07LyXB0XyNlSyEF7Q9YOtYFotT/AO0Zm/aSNP6hh/iPT5rq9N0PjvxJ+X8zNmy9uy5IG+v/AEbRsorewzVlQcYZkve4/U5Xp0klSRhds6NbSW3Smn5W1bo57tUYFVKMO4Tz9DGe4ftOHPHcE6VK2K3b2K1fOXzGQjDieQ6KmSsdFjzayltulLZp6xuLrh6s1s845Q8W5a3vdvjPTzXDWgWTUT1Gfy26Xv8Aoa/GaioQ5PGwW1tMyOEEvnkPHM88yVTrNQ53L0XBdhxqOxZ1ri9HA0eC8tmlcjeuDeKoYQEqEEJRIbAKaIrHBVqYowKdAGynTFoYJ0QbKYAcprFCiiUatc3igcPBVzHiVJqqKWKol9HydsQuzoZRcVZRmTInAHwcTJBxRu94fmutJqW65My2PGWGlMfo4j9oZOIuIxtjkrFPJyxHFEq7N7IyXUFNVcQLaYl/xxt9VzepaprE4e5owYvisutp2XBTb3NL5OHrLUMenLM+q2dUyH0dPGf2nkfQcytmk0r1GRR9PUqyz7I2fP76+WSrnqqmZ0s0ji6SV3NzupXsYKMVUVSOY93ZsWW6epV5uMzsuZswc3DPUfz8kyfqSNX8XBzbtcZblVOmmIxk8DBs1g7go23yKkkb0NsFFSQ1VcziqqlvFS0vI8P+I/ub3Dqo6jG2Td8HStVI2jb6xL7Uzz7PmuTqczyvtXBtxw7VfqTfTFG57xK/ck5yuDrciSpG3FEnUDeFgC4Ut2aT1KQghKJBSUUQ2AUERjgqyLQrQwVqFGBRQGNlWJgDlNYBgUyYKCCmsh5yjiaQlYUQ6/Wf1mTIbzT4c7xhlCyHXSxui5NK6uDVqRnnjo4Elrfxn2CuhHUKilwJ72eUTqR7nEYLlxepZu9pGrBGkWK07LEnsO+Sqe2GOqkulK93EYGQERd2Sfa+gXe6TkioyXqY9RFlYPp3hoc7ZhJ3PVd2M03RjaPCRziDjIb4p00K0elu9mpZJ6JshactY4ZBPii5KKtkSb2JHExxldWXCQyzybuc7m4/z0XOzZpZXSNMIKCOjbYZKupD3jboO4LFmmscaRfBWyyLJTNijbsvNanJ3M3QWx3W7NCw2OAlAgpKJBcokPcFIQYFNEDHBViYBgU6YowKeyUHKZMFDZTJi0HKayAUIeL4WuO4ykcR7OfW2yObOWhSLceCbM48un4+PPCrlqJIXsR1rVQNpuQ5qqUnJ2xkqOvnAKbhClcdpUkk3AwbtbnZdHpdKbbKc62orh8/GxsU0IcY9gQvQqNO0zG99jXmpxUPYwhrGDJx3qyE+3fkSUbPenZBRDDCJZTzPQFVzcsnOyGilHg26aKWqmDpDk93cqZyjBUiyKbZN9P27h4SQuHq89mvHAmtLHwMxhcSbtmlGyqggJUIISmogpKNEPfKrIMCoQcFMAYFOgMYFWIAQUy3AEFMmQbKNgozKPcSjMo2SgEAqEF4BnkloIQMIkMPIqEREtU241TScElW6TN4chckbRXtZaXRvPs9V38eoTRjlA5dRQuycgrVDKitxGpreS9oDShPNsRR3JVZrVgtJauVqdQaoQJnbqX0TeXRcXNks0xR1GbBZWOMSgQQlEgpKJBCUyQGe4KrCMCgQYOUIMCmToA4cE6oDCCmsAwKayBDk3JDMqWAPEFEQziTWQzKlkMypZBSUrYTWqYhIErIcSstTJCTgK3HnlEDimcassLHDLWrbj1jKnjPCls4Y/knnqrQFjokFDRiMDyXPy5bLkjpRt4VlbsY9MpQikokFLkaIISmoAhcjRD3BKQI4JQIEEoBHBKCAM0p4kY2d0yAHJRQAglH1IHKYgcqeoAZKFkMyUyIAkoBASUGQVx2SkPJwB3KWyGvK0dyKYTxDGg8k1sB7NAA2SsI2dkpDMlGiCklEghJRIISUSCElMA//9k=" },
+            { id: 2, name: "Smartphone", price: 50000, description: "Latest model", image: "https://img.freepik.com/free-vector/realistic-display-smartphone-with-different-apps_52683-30241.jpg" },
+            { id: 3, name: "Smartwatch", price: 1500, description: "Track your fitness", image: "https://m.media-amazon.com/images/I/61ZjlBOp+rL.jpg" },
+            { id: 4, name: "Laptop", price: 75000, description: "Powerful performance", image: "https://m.media-amazon.com/images/I/61+r3+JstZL._AC_UF1000,1000_QL80_.jpg" }
+        ];
+
+        const cart = [];
+
+        function displayProducts() {
+            const productList = document.getElementById('product-list');
+            productList.innerHTML = '';
+
+            products.forEach(product => {
+                const productItem = document.createElement('div');
+                productItem.className = 'product-item';
+                productItem.innerHTML = `
+                    <img src="${product.image}" alt="${product.name}">
+                    <div>
+                        <h3>${product.name}</h3>
+                        <p>${product.description}</p>
+                        <p>Price: ₹${product.price.toFixed(2)}</p>
+                    </div>
+                    <button onclick="addToCart(${product.id})">Add to Cart</button>
+                `;
+                productList.appendChild(productItem);
+            });
+        }
+
+        function addToCart(productId) {
+            const product = products.find(p => p.id === productId);
+            cart.push(product);
+            displayCart();
+        }
+
+        function displayCart() {
+            const cartList = document.getElementById('cart-list');
+            cartList.innerHTML = '';
+
+            cart.forEach((product, index) => {
+                const cartItem = document.createElement('li');
+                cartItem.innerHTML = `${product.name} - ₹${product.price.toFixed(2)} <button onclick="removeFromCart(${index})">Remove</button>`;
+                cartList.appendChild(cartItem);
+            });
+
+            calculateTotal();
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            displayCart();
+        }
+
+        function calculateTotal() {
+            const totalPrice = cart.reduce((total, product) => total + product.price, 0);
+            document.getElementById('total-price').textContent = totalPrice.toFixed(2);
+        }
+
+        displayProducts();
+    </script>
+</body>
+</html>
